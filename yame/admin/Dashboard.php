@@ -45,6 +45,8 @@ FROM
 invoice
 WHERE 
 YEAR(DateInvoice) = YEAR(CURDATE())  -- Lọc theo năm hiện tại
+AND Status != 'Đơn bị hủy' -- Bỏ qua đơn bị hủy
+
 GROUP BY 
 MONTH(DateInvoice)
 ORDER BY 

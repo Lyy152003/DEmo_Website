@@ -266,7 +266,7 @@
 			{
 				$sql="INSERT INTO Usr (Email, Passwd, UsrName, PhoneNo, Address, Blocked, Authentication) VALUES ('$email', '$passwd', '$fullname', '$phone', '$address', '0', 'Usr')";
 				DataProvider::executeQuery($sql);
-				echo "<script>alert('Cám ơn bạn $fullname đã đăng ký tài khoản tại TIPO. Chúc bạn có một ngày mua sắm được nhiều hàng')</script>";
+				echo "<script>alert('Cám ơn bạn $fullname đã đăng ký tài khoản. Chúc bạn có một ngày mua sắm được nhiều hàng')</script>";
 				$_SESSION['isLogin']=1;
 				$_SESSION['username']=$email;
 				$_SESSION['Authentication']='Usr';
