@@ -186,14 +186,22 @@
 										// Nếu không có khiếu nại, hiển thị đường link để tạo khiếu nại
 										$complaintLink = "<a href='javascript:void(0)' onclick='openModal(" . $invoiceID . ")'>😱 Khiếu nại về đơn hàng 😱</a>";
 									}
-                                    echo "<tr>
-                                            <td>" . $row['DateInvoice'] . "</td>
-                                            <td>" . $row['Total'] . " VNĐ</td>
-                                            <td><a href='invoice-details.php?invoiceID=" . $row['InvoiceID'] . "'>Xem chi tiết 👈</a></td>
-                                            <td>" . $row['Status'] . "</td>
-                							<td>" . $complaintLink . "</td> <!-- Hiển thị liên kết khiếu nại -->
+                                    $status = $row['Status'];
+									$cancelBtn = "";
 
-                                        </tr>";
+									// Hiển thị nút "Hủy đơn" nếu trạng thái phù hợp
+									if ($status == "Chờ xác nhận" || $status == "Đã tiếp nhận") {
+										$cancelBtn = " / <a href='php/cancel-invoice.php?invoiceID=" . $invoiceID . "' class='btn btn-danger btn-sm cancel-btn' onclick=\"return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');\">Hủy đơn</a>";
+									}
+
+									echo "<tr>
+										<td>" . $row['DateInvoice'] . "</td>
+										<td>" . $row['Total'] . " VNĐ</td>
+										<td><a href='invoice-details.php?invoiceID=" . $row['InvoiceID'] . "'>Xem chi tiết 👈</a></td>
+										<td>" . $status . $cancelBtn . "</td>
+										<td>" . $complaintLink . "</td>
+									</tr>";
+
                                 }
 
                                 echo "</tbody></table>";
