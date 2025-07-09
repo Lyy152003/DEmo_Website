@@ -228,7 +228,7 @@
 			$email=$_POST['email'];
 			$passwd=$_POST['pass'];
 			$passwd=sha1($passwd);
-			$sql="SELECT * FROM Usr WHERE Email='$email' AND Passwd='$passwd' AND Blocked=0";
+			$sql = "SELECT * FROM Usr WHERE Email='$email' AND Passwd='$passwd' AND Blocked=0 AND Verified=1";
 			$rs=DataProvider::executeQuery($sql);
 			if(mysqli_num_rows($rs)==1)
 			{
@@ -243,36 +243,66 @@
 				echo "<script> document.getElementById('wrongIDpass').style.display='block'</script>";
 			}
 		}
+		require 'vendor/autoload.php';
+		use PHPMailer\PHPMailer\PHPMailer;
+		use PHPMailer\PHPMailer\Exception;
 
-		if(isset($_POST['submitsignin']))
-		{
-			$email=$_POST['email'];
-			$passwd=$_POST['pass'];
-			$passwd=sha1($passwd);
-			$fullname=$_POST['fullname'];
-			$phone=$_POST['phone'];
-			$address=$_POST['address'];
-			$sql="SELECT * FROM Usr WHERE Email='$email'";
-			$rs=DataProvider::executeQuery($sql);
-			if(mysqli_num_rows($rs)==1){
+		if (isset($_POST['submitsignin'])) {
+			$email = $_POST['email'];
+			$passwd = sha1($_POST['pass']);
+			$fullname = $_POST['fullname'];
+			$phone = $_POST['phone'];
+			$address = $_POST['address'];
+			$verifyCode = bin2hex(random_bytes(16)); // mã xác thực
+
+			// Kiểm tra email đã tồn tại chưa
+			$sql = "SELECT * FROM Usr WHERE Email='$email'";
+			$rs = DataProvider::executeQuery($sql);
+			if (mysqli_num_rows($rs) == 1) {
 				echo "<script> alert('Thêm thất bại: Email đã được đăng ký');</script>";
 				echo "<script>
 					document.getElementById('register-form').style.display='block';
 					document.getElementById('login-form').style.display='none';
 					document.getElementById('phu').style.display='none';
-				</script>";			
-			}
-			else
-			{
-				$sql="INSERT INTO Usr (Email, Passwd, UsrName, PhoneNo, Address, Blocked, Authentication) VALUES ('$email', '$passwd', '$fullname', '$phone', '$address', '0', 'Usr')";
+				</script>";
+			} else {
+				$sql = "INSERT INTO Usr (Email, Passwd, UsrName, PhoneNo, Address, Blocked, Authentication, Verified, VerifyCode)
+						VALUES ('$email', '$passwd', '$fullname', '$phone', '$address', 0, 'Usr', 0, '$verifyCode')";
 				DataProvider::executeQuery($sql);
-				echo "<script>alert('Cám ơn bạn $fullname đã đăng ký tài khoản. Chúc bạn có một ngày mua sắm được nhiều hàng')</script>";
-				$_SESSION['isLogin']=1;
-				$_SESSION['username']=$email;
-				$_SESSION['Authentication']='Usr';
-				header("Location: index.php");
+
+				// Gửi email xác thực
+				$mail = new PHPMailer(true);
+				try {
+					$mail->isSMTP();
+					$mail->Host = 'smtp.gmail.com'; // SMTP của bạn
+					$mail->SMTPAuth = true;
+					$mail->Username = 'lly.htq@gmail.com'; // email gửi
+					$mail->Password = 'nosp weno wpgx noxi'; // app password (không phải password Gmail)
+					$mail->SMTPSecure = 'tls';
+					$mail->Port = 587;
+
+					$mail->CharSet = 'UTF-8';
+					$mail->Encoding = 'base64'; // hoặc 'quoted-printable'
+					$mail->setFrom('your_email@gmail.com', 'Hoàng Phát Shop');
+					$mail->addAddress($email, $fullname);
+
+					$mail->isHTML(true);
+					$mail->Subject = 'Xác nhận email tài khoản Hoàng Phát';
+					$mail->Body = "Xin chào <b>$fullname</b>,<br><br>
+						Cảm ơn bạn đã đăng ký tài khoản. Vui lòng xác nhận email bằng cách nhấn vào đường dẫn dưới đây:<br><br>
+						<a href='http://localhost/yame/verify.php?email=$email&code=$verifyCode'>Xác nhận tài khoản</a>
+						Trân trọng,<br>Hoàng Phát";
+
+					$mail->send();
+					echo "<script>alert('Vui lòng kiểm tra email để xác nhận tài khoản.')</script>";
+				} catch (Exception $e) {
+					echo "Không gửi được email. Lỗi: {$mail->ErrorInfo}";
+				}
+
+				// Không đăng nhập ngay. Chờ xác thực xong.
 			}
 		}
+
 	?>
 
 	<!-- FOOTER -->
