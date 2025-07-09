@@ -299,3 +299,8 @@ function confirmDel()
     confirmed = confirm("Bạn có chắc muốn sửa/xóa không???");
     return confirmed;
 }
+// xỬ LÝ FORMAT SỐ
+function formatPrice(input) {
+    let value = input.value.replace(/[^\d]/g, '');
+    input.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}

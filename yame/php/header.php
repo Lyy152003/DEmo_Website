@@ -10,7 +10,7 @@
             <div class="pull-left">
                 <!-- Logo -->
                 <div class="header-logo">
-                    <a class="logo" href="#">
+                    <a class="logo" href="index.php">
                         <img src="./images/logo.png" alt="">
                     </a>
                 </div>

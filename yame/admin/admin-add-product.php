@@ -171,14 +171,15 @@
 						<div class="form-row">
 							<span class='text-uppercase'>Giá: </span>
 							<?php 
-								echo "<input type='text' name='atxtPrice' id='atxtPrice'";
-								if(isset($_POST['atxtPrice']))
-									echo" value = ".$_POST['atxtPrice'].">";
+								echo "<input type='text' name='atxtPrice' id='atxtPrice' oninput='formatPrice(this)'";
+								if (isset($_POST['atxtPrice']))
+									echo " value='" . htmlspecialchars($_POST['atxtPrice'], ENT_QUOTES) . "'>";
 								else
 									echo ">";
 							?>
 							<span id='lblPriceNULL' style='color:red; display:none;'>*</span>
 							<span id='lblPriceNoError' style='color:red; display:none;'>Giá nhập phải là số</span>
+
 							<br><br>
 
 							<span class='text-uppercase'>Số Lượng: </span>
@@ -275,7 +276,8 @@
 				$sqlAddProduct.="'".$_POST['atxtProductName']."', ";
 				$sqlAddProduct.="'".$_POST['atxtBrandName']."', ";
 				$sqlAddProduct.="'".$txtProductTypeID."', ";
-				$sqlAddProduct.="'".$_POST['atxtPrice']."', ";
+				$price = str_replace('.', '', $_POST['atxtPrice']); // xử lý dấu chấm
+				$sqlAddProduct.="'".$price."', ";
 				$sqlAddProduct.="'".$_POST['atxtQuantity']."', ";
 				$sqlAddProduct.="'".$_POST['atxtDescription']."', ";
 				$sqlAddProduct.="'".$imgName."', ";

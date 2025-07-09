@@ -214,11 +214,11 @@
 											$TypeID = "";
 											while ($row=mysqli_fetch_array($rs_type,MYSQLI_BOTH))
 												$TypeID = $row['ProductTypeID'];
-
+											$rawPrice = str_replace('.', '', $_POST['qtxtPrice']);
 											$sql_update = "UPDATE Product SET 
 																				ProductName = '".$_POST['qtxtProductName']."',
 																				ProductTypeID = '$TypeID',
-																				UnitPrice = '".$_POST['qtxtPrice']."',
+																				UnitPrice = '".$rawPrice."',
 																				Quantity = '".$_POST['qtxtQuantity']."',
 																				Description = '".$_POST['qtxtDescription']."'
 											WHERE ProductID = '".$ProductID."'";

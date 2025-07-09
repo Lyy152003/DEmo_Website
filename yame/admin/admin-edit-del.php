@@ -142,7 +142,8 @@
 							echo "<br><br>";
 
 							echo "<span class='text-uppercase'>Giá: </span>";
-							echo "<input name='qtxtPrice' id='qtxtPrice' type='text' value='".$row['UnitPrice']."'>";
+							echo "<input name='qtxtPrice' id='qtxtPrice' type='text' value='".number_format($row['UnitPrice'], 0, '', '.')."' oninput='formatPrice(this)'>";
+
 							echo "<br><br>";
 							
 
