@@ -156,15 +156,35 @@
 										$defaultReply = "Kính gửi Quý khách, Cảm ơn quý khách đã liên hệ với chúng tôi. Chúng tôi rất tiếc khi nghe về sự bất tiện mà quý khách gặp phải. Chúng tôi đang tiến hành kiểm tra vấn đề của quý khách và sẽ sớm phản hồi lại với giải pháp thích hợp. Chúng tôi cam kết sẽ nỗ lực hết mình để khắc phục sự cố và mang lại trải nghiệm tốt nhất cho quý khách. Nếu quý khách có thêm bất kỳ câu hỏi hay yêu cầu nào, xin đừng ngần ngại liên hệ lại với chúng tôi. Xin chân thành cảm ơn quý khách đã thông cảm và kiên nhẫn. Trân trọng.";
 										
 										if ($status == 0 && ($adminReply == $defaultReply || empty($adminReply))) {
-											// Nếu khiếu nại chưa xử lý và phản hồi admin là mặc định
-											$complaintLink = "<a href='complaint-details.php?complaintID=" . $complaintID . "'>Chờ phản hồi từ Admin nhé 💁 </a>";
+											$title = addslashes($complaint['Title']);
+											$desc = addslashes($complaint['Description']);
+											$reply = addslashes($complaint['AdminReply']);
+											$statusVal = $complaint['Status'];
+
+											// Tin nhắn phản hồi mặc định của admin
+											$defaultReply = "Kính gửi Quý khách, Cảm ơn quý khách đã liên hệ với chúng tôi. Chúng tôi rất tiếc khi nghe về sự bất tiện mà quý khách gặp phải. Chúng tôi đang tiến hành kiểm tra vấn đề của quý khách và sẽ sớm phản hồi lại với giải pháp thích hợp. Chúng tôi cam kết sẽ nỗ lực hết mình để khắc phục sự cố và mang lại trải nghiệm tốt nhất cho quý khách. Nếu quý khách có thêm bất kỳ câu hỏi hay yêu cầu nào, xin đừng ngần ngại liên hệ lại với chúng tôi. Xin chân thành cảm ơn quý khách đã thông cảm và kiên nhẫn. Trân trọng.";
+
+											// Nếu chưa phản hồi hoặc là phản hồi mặc định => dùng mặc định
+											if (empty($reply) || $reply == $defaultReply) {
+												$reply = $defaultReply;
+											}
+
+											$complaintLink = "<a href='javascript:void(0)' onclick=\"openComplaintDetail('$title', '$desc', '$statusVal', '$reply')\">"
+											. ($statusVal == 0 ? "Chờ phản hồi từ Admin nhé 💁" : "Admin đã phản hồi 💬")
+											. "</a>";
+
 										} elseif ($status == 1 && $adminReply != $defaultReply) {
-											// Nếu khiếu nại đã xử lý và phản hồi admin khác với mặc định
-											$complaintLink = "<a href='complaint-details.php?complaintID=" . $complaintID . "'>Admin đã phản hồi 💬</a>";
+											$title = addslashes($complaint['Title']);
+											$desc = addslashes($complaint['Description']);
+											$reply = addslashes($complaint['AdminReply']);
+											$statusVal = $complaint['Status'];
+
+											$complaintLink = "<a href='javascript:void(0)' onclick=\"openComplaintDetail('$title', '$desc', '$statusVal', '$reply')\">Admin đã phản hồi 💬</a>";
+
 										}
 									} else {
 										// Nếu không có khiếu nại, hiển thị đường link để tạo khiếu nại
-										$complaintLink = "<a href='create-complaint.php?invoiceID=" . $invoiceID . "'>😱 Khiếu nại về đơn hàng 😱</a>";
+										$complaintLink = "<a href='javascript:void(0)' onclick='openModal(" . $invoiceID . ")'>😱 Khiếu nại về đơn hàng 😱</a>";
 									}
                                     echo "<tr>
                                             <td>" . $row['DateInvoice'] . "</td>
@@ -186,6 +206,37 @@
 				<?php
 					}
 				?>
+				<!-- Modal create complaint -->
+				<div class="modal-overlay" id="complaintModal" style="display: none;">
+					<div class="modal-content">
+						<span class="modal-close" onclick="closeModal()">&times;</span>
+						<h3>Đơn khiếu nại</h3>
+						<form class="submit-complaint" action="submit-complaint.php" method="post">
+							<input type="hidden" name="invoiceID" id="modalInvoiceID">
+							<label for="title">Tiêu đề khiếu nại:</label>
+							<input type="text" name="title" required>
+
+							<label for="description">Mô tả khiếu nại:</label>
+							<textarea name="description" rows="4" required></textarea>
+
+							<input type="submit" value="Gửi khiếu nại">
+						</form>
+					</div>
+				</div>
+
+				<!-- Modal complaint detail -->
+				<div class="modal-overlay" id="complaintDetailModal" style="display: none;">
+					<div class="modal-content">
+						<span class="modal-close" onclick="closeComplaintDetail()">&times;</span>
+						<h3>Chi tiết khiếu nại</h3>
+
+						<p><strong>Tiêu đề:</strong> <span id="detailTitle"></span></p>
+						<p><strong>Mô tả:</strong> <span id="detailDescription"></span></p>
+						<p><strong>Trạng thái:</strong> <span id="detailStatus" class="status-label"></span></p>
+						<p><strong>Phản hồi từ Admin:</strong> <span id="detailReply"></span></p>
+					</div>
+				</div>
+
 			</div>
 			<!-- /row -->
 		</div>
@@ -293,6 +344,54 @@
 	<script src="js/nouislider.min.js"></script>
 	<script src="js/jquery.zoom.min.js"></script>
 	<script src="js/main.js"></script>
+	<script>
+		function openModal(invoiceID) {
+			document.getElementById('modalInvoiceID').value = invoiceID;
+			document.getElementById('complaintModal').style.display = 'flex';
+		}
+
+		function closeModal() {
+			document.getElementById('complaintModal').style.display = 'none';
+		}
+
+		// Đóng modal khi click ra ngoài nội dung
+		window.addEventListener('click', function (e) {
+			const modal = document.getElementById('complaintModal');
+			if (e.target === modal) {
+				closeModal();
+			}
+		});
+
+		function openComplaintDetail(title, description, status, reply) {
+		document.getElementById('detailTitle').innerText = title;
+		document.getElementById('detailDescription').innerText = description;
+		const statusEl = document.getElementById('detailStatus');
+
+		if (status == 1) {
+			statusEl.innerText = 'Đã xử lý';
+			statusEl.className = 'status-done';
+		} else {
+			statusEl.innerText = 'Chưa xử lý';
+			statusEl.className = 'status-pending';
+		}
+		document.getElementById('detailReply').innerText = reply || 'Chưa có phản hồi';
+
+		document.getElementById('complaintDetailModal').style.display = 'flex';
+		}
+
+		function closeComplaintDetail() {
+			document.getElementById('complaintDetailModal').style.display = 'none';
+		}
+
+		// Đóng modal khi click ra ngoài nội dung
+		window.addEventListener('click', function (e) {
+			const modal = document.getElementById('complaintDetailModal');
+			if (e.target === modal) {
+				closeComplaintDetail();
+			}
+		});
+	</script>
+
 
 </body>
 
