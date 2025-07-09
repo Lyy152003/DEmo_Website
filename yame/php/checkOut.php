@@ -62,12 +62,12 @@
             $newQuantity = $row['Quantity'] - $SL;
             $doanhsosp = $row['Doanh_so'] + 1;
             // Giảm số lượng trong kho
-$sql1 = "UPDATE Product SET Quantity=$newQuantity WHERE ProductID=$id";
-DataProvider::executeQuery($sql1);
+            $sql1 = "UPDATE Product SET Quantity=$newQuantity WHERE ProductID=$id";
+            DataProvider::executeQuery($sql1);
 
-// Tăng doanh số
-$sql2 = "UPDATE Product SET Doanh_so=$doanhsosp WHERE ProductID=$id";
-DataProvider::executeQuery($sql2);
+            // Tăng doanh số
+            $sql2 = "UPDATE Product SET Doanh_so=$doanhsosp WHERE ProductID=$id";
+            DataProvider::executeQuery($sql2);
             
             $sql="INSERT INTO InvoiceDetails (InvoiceID, ProductID, Quantities, Price, SubTotal) VALUES ('$ai', '$id', '$SL', '".$row['UnitPrice']."', '".$row['UnitPrice']*$SL."')";
             DataProvider::executeQuery($sql);

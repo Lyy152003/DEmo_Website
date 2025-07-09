@@ -146,7 +146,21 @@
 							<div class="section-title">
 								<h4 class="title">Phương thức Thanh Toán</h4>
 							</div>
-								<label for="">Thanh Toán Tiền Mặt 💲 <span style="color: grey; font-weight:100">(Mặc định)</span><sup></sup></label>
+									<div class="input-checkbox">
+										<input type="radio" name="paymentMethod" id="cash" value="cash" checked>
+										<label for="cash">Thanh Toán Tiền Mặt 💲 <span style="color: grey; font-weight:100"></span></label>
+									</div>								
+									<div class="input-checkbox">
+										<input type="radio" name="paymentMethod" id="qr" value="qr">
+										<label for="qr">Thanh Toán bằng Mã QR 📱</label>
+										<div class="caption" id="qr-section" style="display: none; margin-top: 15px; text-align: center;">
+											<p><strong>Quét mã để thanh toán:</strong></p>
+											<img id="qrImage" src="" alt="QR Code" style="max-width:50%; border: 1px solid #ccc; padding: 5px;">
+											<p style="display: none;"><strong>Số tiền:</strong> <span id="qrAmount"></span>₫</p>
+											<p style="display: none;"><strong>Nội dung chuyển khoản:</strong> <span id="qrInfo">CHUYENHANH</span></p>
+
+										</div>
+									</div>
 						</div>
 					</div>
 					<table class="shopping-cart-table table">
@@ -346,7 +360,6 @@
 	<script src="js/nouislider.min.js"></script>
 	<script src="js/jquery.zoom.min.js"></script>
 	<script src="js/main.js"></script>
-
 </body>
 
 </html>

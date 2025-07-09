@@ -268,9 +268,71 @@ function switchShipping()
             document.getElementById('lblTotal').innerHTML=PriceDot((parseInt(document.getElementById('subTotal').value))-(parseInt(document.getElementById('subTotal').value)*discountPercentage/100));
             document.getElementById('lblShip').innerHTML='0';
         }
+// 👉 Gọi lại QR nếu người dùng đang chọn thanh toán bằng QR
+    if (document.getElementById('qr').checked) {
+        updateQR();
+    }
+    
 }
-
 window.onload=function onloadSwitchShipping()
 {
     switchShipping()
+}
+
+// Xử lý thanh toán QR
+
+function getTotalFromPage() {
+    const lblTotal = document.getElementById('lblTotal');
+    if (!lblTotal) return 0;
+
+    // Lấy số từ dạng chuỗi 1.000.000₫ hoặc 1,000,000đ
+    const rawText = lblTotal.textContent || "0";
+    const number = parseInt(rawText.replace(/[^\d]/g, ""));
+    return isNaN(number) ? 0 : number;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const qrRadio = document.getElementById('qr');
+    const cashRadio = document.getElementById('cash');
+    const qrSection = document.getElementById('qr-section');
+    const qrImage = document.getElementById('qrImage');
+    const qrAmountSpan = document.getElementById('qrAmount');
+
+    const totalInput = document.getElementById('subTotal');
+    const discountInput = document.getElementById('Discount');
+
+    function updateQR() {
+    const amount = getTotalFromPage(); // 👈 lấy từ lblTotal
+        qrAmountSpan.textContent = amount.toLocaleString();
+
+        const bank = "VIETCOMBANK"; // mã ngân hàng
+        const account = "0421000415149"; // số tài khoản
+        const name = "LE NGOC HUAN"; // tên chủ tài khoản viết HOA không dấu
+        const info = "THANHTOANHOANGPHAT";
+
+        const qrUrl = `https://img.vietqr.io/image/${bank}-${account}-${encodeURIComponent(name)}.png?amount=${amount}&addInfo=${info}`;
+        qrImage.src = qrUrl;
+    }
+
+    function toggleQRSection() {
+        if (qrRadio.checked) {
+            qrSection.style.display = 'block';
+            updateQR();
+        } else {
+            qrSection.style.display = 'none';
+        }
+    }
+
+    qrRadio.addEventListener('change', toggleQRSection);
+    cashRadio.addEventListener('change', toggleQRSection);
+});
+
+function updateQR() {
+    const amount = parseInt(document.getElementById('lblTotal').textContent.replace(/[^\d]/g, '')) || 0;
+    const bank = "VIETCOMBANK";
+    const account = "0421000415149";
+    const name = "LE NGOC HUAN";
+    const info = "THANHTOANHOANGPHAT";
+    const qrUrl = `https://img.vietqr.io/image/${bank}-${account}-${encodeURIComponent(name)}.png?amount=${amount}&addInfo=${info}`;
+    document.getElementById('qrImage').src = qrUrl;
 }
