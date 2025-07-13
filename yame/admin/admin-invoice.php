@@ -89,8 +89,7 @@
 			<div class="row row-admin">
 				<!-- MAIN -->
 				<div id="main" class="col-md-12">
-
-
+            		<h2 class="mt-4" style="padding: 15px;">Danh sách hóa đơn</h2>
 					<table border=1>
 						<tr>
 							<td>Mã Hóa Đơn</td>
@@ -101,7 +100,7 @@
 							<td>Tình trạng đơn</td>
 							<!-- <td>Tiền Hàng</td>
 							<td>Ship</td> -->
-							<td>Tổng Cộng</td>
+							<td>Tổng Cộng (VNĐ)</td>
 							<td></td>
 						</tr>
 						<?php
@@ -115,7 +114,21 @@
 
 								echo "<input type='hidden' name='InvoiceID' id='InvoiceID' value='".$row['InvoiceID']."'>";
 								
-								echo "<td>".$row['InvoiceID']."</td>";
+								// Kiểm tra khiếu nại
+								$sqlComplaint = "SELECT Status FROM complaint WHERE InvoiceID = '" . $row['InvoiceID'] . "'";
+								$rsComplaint = DataProvider::executeQuery($sqlComplaint);
+								$hasComplaint = mysqli_num_rows($rsComplaint) > 0;
+								$complaintStatus = $hasComplaint ? mysqli_fetch_assoc($rsComplaint)['Status'] : null;
+
+								// Xuất cột Mã hóa đơn + icon nếu có khiếu nại
+								echo "<td>";
+								echo $row['InvoiceID'];
+								if ($hasComplaint) {
+									$icon = $complaintStatus == 0 ? "../images/cp1.png" : "../images/cp2.png";
+									echo "<img src='../img/$icon' width='20px' style='cursor:pointer;' title='Xem khiếu nại' onclick='event.stopPropagation(); openComplaint(".$row['InvoiceID'].");'>";
+
+								}
+								echo "</td>";
 								echo "<td>".$row['Email']."</td>";
 								echo "<td>".$row['UsrName']."</td>";
 								echo "<td>".$row['PhoneNo']."</td>";
@@ -136,7 +149,7 @@
 									
 								// echo "<td>".$row['SubTotal']."</td>";
 																// echo "<td>".$row['Ship']."</td>";
-								echo "<td>".$row['Total']."</td>";
+								echo "<td>" . number_format($row['Total'], 0, ',', '.') . "</td>";
 
 								echo "<td><input type='submit' name='btnSubmitInvoice' id='btnSubmitInvoice' value='Xem Chi Tiết'></td>";
 
@@ -153,6 +166,26 @@
 		<!-- /container -->
 	</div>
 	<!-- /section -->
+	<!-- Modal hiển thị khiếu nại -->
+	<div id="complaintModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#fff; border:1px solid #ccc; padding:20px; z-index:9999; width:500px;">
+		<h3 style="color: #f3312E; text-align: center;">Chi Tiết Khiếu Nại</h3>
+		<p><strong>Tiêu đề:</strong> <span id="complaintTitle"></span></p>
+		<p><strong>Mô tả:</strong> <span id="complaintDesc"></span></p>
+		<p><strong>Ngày gửi:</strong> <span id="complaintDate"></span></p>
+
+		<form id="adminReplyForm" method="POST" action="reply-complaint.php">
+			<input type="hidden" name="ComplaintID" id="ComplaintID">
+			<label for="AdminReply">Phản hồi của admin:</label><br>
+			<textarea name="AdminReply" id="AdminReply" rows="4" style="width:100%"></textarea><br><br>
+			<button type="submit" style="background-color: #f3312E; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+				Gửi phản hồi
+			</button>
+
+			<button type="button" onclick="closeModal()" style="background-color: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+				Đóng
+			</button>
+		</form>
+	</div>
 
 	
 
@@ -164,28 +197,50 @@
 	<script src="../js/jquery.zoom.min.js"></script>
 	<script src="../js/main.js"></script>
 	<script>
-// JavaScript to handle the status change and update it automatically via AJAX
-document.querySelectorAll('select[name="status"]').forEach(select => {
-    select.addEventListener('change', function () {
-        var invoiceID = this.getAttribute('data-invoice-id');
-        var status = this.value;
+	// JavaScript to handle the status change and update it automatically via AJAX
+	document.querySelectorAll('select[name="status"]').forEach(select => {
+		select.addEventListener('change', function () {
+			var invoiceID = this.getAttribute('data-invoice-id');
+			var status = this.value;
 
-        // AJAX request to update status in the database
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'update_invoice_status.php', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onload = function () {
-            if (xhr.status == 200) {
-                alert('Trạng thái hóa đơn đã được cập nhật!');
-                location.reload(); // ⚠️ Load lại trang sau khi cập nhật thành công
-            } else {
-                alert('Có lỗi xảy ra khi cập nhật trạng thái!');
-            }
-        };
-        xhr.send('InvoiceID=' + invoiceID + '&status=' + encodeURIComponent(status));
-    });
-});
-
+			// AJAX request to update status in the database
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', 'update_invoice_status.php', true);
+			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			xhr.onload = function () {
+				if (xhr.status == 200) {
+					alert('Trạng thái hóa đơn đã được cập nhật!');
+					location.reload(); // ⚠️ Load lại trang sau khi cập nhật thành công
+				} else {
+					alert('Có lỗi xảy ra khi cập nhật trạng thái!');
+				}
+			};
+			xhr.send('InvoiceID=' + invoiceID + '&status=' + encodeURIComponent(status));
+		});
+	});
+	function openComplaint(invoiceID) {
+		fetch('get-complaint.php?invoiceID=' + invoiceID)
+			.then(response => response.json())
+			.then(data => {
+				if (data) {
+					document.getElementById('complaintTitle').innerText = data.Title;
+					document.getElementById('complaintDesc').innerText = data.Description;
+					document.getElementById('complaintDate').innerText = data.DateSubmitted;
+					document.getElementById('AdminReply').value = data.AdminReply || '';
+					document.getElementById('ComplaintID').value = data.ComplaintID;
+	// Nếu status = 0 → làm trống ô phản hồi
+					if (parseInt(data.Status) === 0) {
+						document.getElementById('AdminReply').value = '';
+					} else {
+						document.getElementById('AdminReply').value = data.AdminReply || '';
+					}
+					document.getElementById('complaintModal').style.display = 'block';
+				}
+			});
+	}
+	function closeModal() {
+		document.getElementById('complaintModal').style.display = 'none';
+	}
 </script>
 </body>
 

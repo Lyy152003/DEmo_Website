@@ -16,7 +16,6 @@
                     <li><a href="admin-invoice.php">Quản lý hóa đơn</a></li>
                     <li><a href="admin-services.php">Quản lý dịch vụ</a></li>
                     <li><a href="admin_orders.php">Quản lý yêu cầu dịch vụ</a></li>
-                    <li><a href="admin-complaint.php">Quản lý hòm thư khiếu nại</a></li>
 
                 </ul>
             </div>

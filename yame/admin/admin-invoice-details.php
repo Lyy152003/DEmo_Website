@@ -104,7 +104,7 @@
 						echo "<p>Tiền Hàng: ".$rowInvoice['SubTotal']."</p>";
 						echo "<p>Ship: ".$rowInvoice['Ship']."</p>";
 						echo "<p>Giảm giá: ".$rowInvoice['Discount']."</p>";
-						echo "<p>Giá trị đơn hàng: ".$rowInvoice['Total']."</p>";
+						echo "<p>Giá trị đơn hàng: " . number_format($rowInvoice['Total'], 0, ',', '.') . " VNĐ</p>";
 					?>
 					<table border=1>
 						<tr>
