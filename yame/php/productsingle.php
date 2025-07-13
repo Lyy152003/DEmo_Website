@@ -11,7 +11,11 @@
     echo "<input name='txtProductID' type='hidden' value='".$row['ProductID']."' >";
     echo "<input name='txtQuantity' type='hidden' value=1 >";
     echo "<input name='txtURL' type='hidden' value=".$_SERVER['REQUEST_URI']." >";						
-    echo "<input name='btnAddToCart' type='submit' class='primary-btn add-to-cart' value='Thêm vào giỏ hàng' >";
+    if ($row['Quantity'] > 0) {
+        echo "<input name='btnAddToCart' type='submit' class='primary-btn add-to-cart' value='Thêm vào giỏ hàng' >";
+    } else {
+        echo "<span class='text-danger' style='font-weight:bold;'>Hết hàng</span>";
+    }
     echo "</div>";
     echo "</div>";
     echo "</div>";

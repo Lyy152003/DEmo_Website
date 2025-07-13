@@ -57,7 +57,11 @@
                 echo "</ul>";
                 echo "</div>";
                 echo "</li>";
-                ?>      
+
+                
+         ?>  
+                 <li><a href="news.php">Tin Tức</a></li>
+    
     </ul>
 </div>
 <!-- menu nav -->

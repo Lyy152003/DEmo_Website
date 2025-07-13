@@ -15,6 +15,12 @@
 			echo "<script>alert('Bạn không có quyền trong user');</script>";
 			header('Location: admin');
         }
+
+
+	require_once('DataProvider.php');
+	$sqlNews = "SELECT NewsID, NewsTitle, ImgSrc, Date FROM news ORDER BY NewsID DESC LIMIT 3";
+	$rsNews = DataProvider::executeQuery($sqlNews);
+
 ?>
 
 <!DOCTYPE html>
@@ -173,33 +179,23 @@
 					<a href="#" class="btn-view-all">XEM THÊM <span>›</span></a>
 					</div>
 
-					<!-- Cột phải -->
 					<div class="news-right">
-					<div class="news-card">
-						<div class="date-box">
-						<span>09</span><br>Th9
-						</div>
-						<img src="./images/news1.jpg" alt="News 1">
-						<h3>Mẹo treo tranh ảnh trên tường như chuyên gia nội thất</h3>
-						<a href="#" class="btn-detail">XEM CHI TIẾT</a>
+						<?php while ($row = mysqli_fetch_array($rsNews, MYSQLI_ASSOC)) {
+							$date = strtotime($row['Date']);
+							$day = date('d', $date);
+							$month = 'Th' . date('n', $date); // Ví dụ: Th9
+						?>
+							<div class="news-card">
+								<div class="date-box">
+									<span><?php echo $day; ?></span><br><?php echo $month; ?>
+								</div>
+								<img src="img/<?php echo htmlspecialchars($row['ImgSrc']); ?>" alt="<?php echo htmlspecialchars($row['NewsTitle']); ?>">
+								<h3><?php echo htmlspecialchars($row['NewsTitle']); ?></h3>
+								<a href="news-detail.php?news_id=<?php echo $row['NewsID']; ?>" class="btn-detail">XEM CHI TIẾT</a>
+							</div>
+						<?php } ?>
 					</div>
-					<div class="news-card">
-						<div class="date-box">
-						<span>09</span><br>Th9
-						</div>
-						<img src="./images/news2.jpg" alt="News 2">
-						<h3>Vợ chồng trẻ xây nhà cấp 4 với phương châm ‘miễn tiếp khách’</h3>
-						<a href="#" class="btn-detail">XEM CHI TIẾT</a>
-					</div>
-					<div class="news-card">
-						<div class="date-box">
-						<span>09</span><br>Th9
-						</div>
-						<img src="./images/news3.jpeg" alt="News 3">
-						<h3>Những điều cần chú ý khi chọn vòi nước cho phòng tắm</h3>
-						<a href="#" class="btn-detail">XEM CHI TIẾT</a>
-					</div>
-					</div>
+
 				</div>
 				</section>
 
@@ -302,7 +298,11 @@
 								echo "<input name='txtProductID' type='hidden' value='".$row['ProductID']."' >";
 								echo "<input name='txtQuantity' type='hidden' value=1 >";
 								echo "<input name='txtURL' type='hidden' value=".$_SERVER['REQUEST_URI']." >";						
-								echo "<input name='btnAddToCart' type='submit' class='primary-btn add-to-cart' value='Thêm vào giỏ hàng' >";
+								if ($row['Quantity'] > 0) {
+									echo "<input name='btnAddToCart' type='submit' class='primary-btn add-to-cart' value='Thêm vào giỏ hàng' >";
+								} else {
+									echo "<span class='text-danger' style='font-weight:bold;'>Hết hàng</span>";
+								}
 								echo "</div>";
 								echo "</div>";
 								echo "</div>";								

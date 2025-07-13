@@ -123,7 +123,7 @@ if (isset($_GET['delete_id'])) {
             </thead>
             <tbody>
               <?php
-                $sql = "SELECT * FROM service ORDER BY Date DESC";
+                $sql = "SELECT * FROM service";
                 $result = DataProvider::executeQuery($sql);
 
                 while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
