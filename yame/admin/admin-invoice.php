@@ -98,6 +98,7 @@
 							<td>SĐT Khi Giao</td>
 							<td>Địa Chỉ Giao</td>
 							<td>Tình trạng đơn</td>
+							<td>Tình trạng thanh toán</td>
 							<!-- <td>Tiền Hàng</td>
 							<td>Ship</td> -->
 							<td>Tổng Cộng (VNĐ)</td>
@@ -149,6 +150,23 @@
 									
 								// echo "<td>".$row['SubTotal']."</td>";
 																// echo "<td>".$row['Ship']."</td>";
+								echo "<td>";
+								$paymentStatusOptions = [
+									"0" => "Chưa thanh toán",
+									"1" => "Đã thanh toán"
+								];
+								$isPaid = $row['Payment Status'];
+								$disabled = ($isPaid == "1") ? "disabled style='color:green; font-weight:bold;'" : ""; // Khoá và đổi màu nếu đã thanh toán
+
+								echo "<select name='payment_status' class='payment-status' data-invoice-id='" . $row['InvoiceID'] . "' $disabled>";
+								foreach ($paymentStatusOptions as $value => $label) {
+									$selected = ($isPaid == $value) ? "selected" : "";
+									echo "<option value='$value' $selected>$label</option>";
+								}
+								echo "</select>";
+								echo "</td>";
+
+
 								echo "<td>" . number_format($row['Total'], 0, ',', '.') . "</td>";
 
 								echo "<td><input type='submit' name='btnSubmitInvoice' id='btnSubmitInvoice' value='Xem Chi Tiết'></td>";
@@ -241,6 +259,28 @@
 	function closeModal() {
 		document.getElementById('complaintModal').style.display = 'none';
 	}
+
+	// Xử lý cập nhật trạng thái thanh toán
+	document.querySelectorAll('select.payment-status').forEach(select => {
+		select.addEventListener('change', function () {
+			var invoiceID = this.getAttribute('data-invoice-id');
+			var paymentStatus = this.value;
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', 'update_payment_status.php', true);
+			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			xhr.onload = function () {
+				if (xhr.status == 200) {
+					alert('Trạng thái thanh toán đã được cập nhật!');
+					location.reload(); // ✅ Reload sau khi cập nhật thành công
+				} else {
+					alert('Lỗi khi cập nhật trạng thái thanh toán!');
+				}
+			};
+			xhr.send('InvoiceID=' + invoiceID + '&payment_status=' + paymentStatus);
+		});
+	});
+
 </script>
 </body>
 

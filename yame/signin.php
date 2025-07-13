@@ -291,6 +291,10 @@
 					$mail->Body = "Xin chào <b>$fullname</b>,<br><br>
 						Cảm ơn bạn đã đăng ký tài khoản. Vui lòng xác nhận email bằng cách nhấn vào đường dẫn dưới đây:<br><br>
 						<a href='http://localhost/yame/verify.php?email=$email&code=$verifyCode'>Xác nhận tài khoản</a>
+
+						🎁 Để tri ân bạn, chúng tôi xin tặng bạn <b>voucher KHMOI2025</b> — giảm <b>10%</b> trên tổng đơn hàng của bạn!<br>
+						Hãy nhập mã khi thanh toán để nhận ưu đãi nhé!<br><br>
+
 						Trân trọng,<br>Hoàng Phát";
 
 					$mail->send();
